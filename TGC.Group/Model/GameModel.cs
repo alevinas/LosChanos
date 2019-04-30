@@ -9,84 +9,6 @@ using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 using TGC.Core.Textures;
 
-namespace TGC.Core.SceneLoader
-{
-    //Clases Creadas
-    public class AutoManejable : TgcMesh
-    {
-        public float gradosGiro = 0.017f;
-        public float velocidadMinima = -2;
-        public float velocidadMaxima = 13;
-
-        private float aceleracion = 0;
-        public float Aceleracion { get => aceleracion; set => aceleracion = value; }
-        private float tiempoBotonApretado = 0.0f;
-        public float TiempoBotonApretado { get => tiempoBotonApretado; set => tiempoBotonApretado = value; }
-        private int direccion = 1;
-        public int Direccion { get => direccion; set => direccion = value; }
-        private float rozamiento = 0.005f;
-        public float Rozamiento { get => rozamiento; set => rozamiento = value; }
-        private float grados;
-        public float Grados { get => grados; set => grados = value; }
-        private float velocidad = 0;
-        public float Velocidad
-        {
-            get => FastMath.Min(FastMath.Max((velocidad + (aceleracion * tiempoBotonApretado) - (rozamiento * velocidad)), velocidadMinima), velocidadMaxima);
-            set => velocidad = value;
-        }
-        public TGCVector3 versorDirector()
-        {
-            return new TGCVector3(FastMath.Cos(4.71238898f + grados), 0, FastMath.Sin(4.71238898f + grados));
-        }
-
-        public float giroTotal()
-        {
-            return gradosGiro * (velocidad / 10);
-        }
-
-        //MOVIMIENTO
-        public void acelera()
-        {
-            aceleracion += 0.02f;
-            direccion = 1;
-        }
-        public void frena()
-        {
-            rozamiento += 0.010f;
-           if (velocidad < 0.05f)
-            {
-                velocidad = 0;
-            }
-        }
-        public void marchaAtras()
-        {
-            aceleracion -= 0.02f;
-            direccion = -1;
-        }
-        public void giraDerecha()
-        {
-            grados -= this.giroTotal();
-            this.RotateY(+giroTotal());
-        }
-        public void giraIzquierda()
-        {
-            grados += this.giroTotal();
-            this.RotateY(-giroTotal());
-        }
-        public void parado()
-        {
-            this.RotateY(0);
-            aceleracion = 0;
-            rozamiento = 0.005f;
-        }
-        public void moverse()
-        {
-            this.Move(this.versorDirector() * velocidad);
-        }
-    }
-
-}
-
 
 namespace TGC.Group.Model
 {
@@ -136,26 +58,86 @@ namespace TGC.Group.Model
 
         }
 
+        public class AutoManejable : TgcMesh
+        {
+            public float gradosGiro = 0.017f;
+            public float velocidadMinima = -2;
+            public float velocidadMaxima = 13;
+
+            private float aceleracion = 0;
+            public float Aceleracion { get => aceleracion; set => aceleracion = value; }
+            private float tiempoBotonApretado = 0.0f;
+            public float TiempoBotonApretado { get => tiempoBotonApretado; set => tiempoBotonApretado = value; }
+            private int direccion = 1;
+            public int Direccion { get => direccion; set => direccion = value; }
+            private float rozamiento = 0.005f;
+            public float Rozamiento { get => rozamiento; set => rozamiento = value; }
+            private float grados;
+            public float Grados { get => grados; set => grados = value; }
+            private float velocidad = 0;
+            public float Velocidad
+            {
+                get => FastMath.Min(FastMath.Max((velocidad + (aceleracion * tiempoBotonApretado) - (rozamiento * velocidad)), velocidadMinima), velocidadMaxima);
+                set => velocidad = value;
+            }
+            public TGCVector3 versorDirector()
+            {
+                return new TGCVector3(FastMath.Cos(4.71238898f + grados), 0, FastMath.Sin(4.71238898f + grados));
+            }
+
+            public float giroTotal()
+            {
+                return gradosGiro * (velocidad / 10);
+            }
+
+            //MOVIMIENTO
+            public void acelera()
+            {
+                aceleracion += 0.02f;
+                direccion = 1;
+            }
+            public void frena()
+            {
+                rozamiento += 0.010f;
+                if (velocidad < 0.05f)
+                {
+                    velocidad = 0;
+                }
+            }
+            public void marchaAtras()
+            {
+                aceleracion -= 0.02f;
+                direccion = -1;
+            }
+            public void giraDerecha()
+            {
+                grados -= this.giroTotal();
+                this.RotateY(+giroTotal());
+            }
+            public void giraIzquierda()
+            {
+                grados += this.giroTotal();
+                this.RotateY(-giroTotal());
+            }
+            public void parado()
+            {
+                this.RotateY(0);
+                aceleracion = 0;
+                rozamiento = 0.005f;
+            }
+            public void moverse()
+            {
+                this.Move(this.versorDirector() * velocidad);
+            }
+
+            internal TgcMesh Mesh;
+        }
+
 
         //Camaras
         private TgcCamera camaraAerea;
         private CamaraAtrasRotadora camaraAtras;
         private TgcCamera camaraAereaFija;
-
-
-        //CASTEO
-        /*class Casteo
-        {
-            public static explicit operator AutoManejable(TgcMesh i)
-            {
-                AutoManejable temp = new AutoManejable();
-                // code to convert from TgcMesh to AutoManejable
-
-                return temp;
-            }
-
-        }
-        */
 
         public override void Init()
         {
@@ -170,7 +152,7 @@ namespace TGC.Group.Model
             Ciudad = new TgcSceneLoader().loadSceneFromFile(MediaDir + "escena tp-TgcScene.xml");
             //TgcMesh conversion = Automotor2;
             //conversion= new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
-            Automotor2 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
+            Automotor2.Mesh = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
 
         }
 
