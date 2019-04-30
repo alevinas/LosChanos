@@ -40,7 +40,7 @@ namespace TGC.Group.Model
         */
 
         //Objetos nuevos
-        private AutoManejable Automotor2 { get; set; }
+        private AutoManejable Jugador1 { get; set; }
         private TgcScene Ciudad { get; set; }
 
         public class CamaraAtrasRotadora : TgcCamera
@@ -48,6 +48,8 @@ namespace TGC.Group.Model
             private AutoManejable objetivo;
             public CamaraAtrasRotadora(AutoManejable automotor) {
                 objetivo = automotor;
+                Position = PosicionCamaraAtras;
+                LookAt = objetivo.Position;
             }
             public float distanciaCamaraAtras = 200;
             public float alturaCamaraAtras = 50;
@@ -56,6 +58,7 @@ namespace TGC.Group.Model
             private TGCVector3 posicionCamaraAtras;
             public TGCVector3 PosicionCamaraAtras { get => new TGCVector3(objetivo.Position.X - (lambda * objetivo.Direccion * objetivo.versorDirector().X), alturaCamaraAtras, objetivo.Position.Z - (lambda * objetivo.Direccion * objetivo.versorDirector().Z)); set => posicionCamaraAtras = value; }
 
+            //this.SetCamera(this.PosicionCamaraAtras, objetivo.Position);
         }
 
         public class AutoManejable : TgcMesh
@@ -150,9 +153,10 @@ namespace TGC.Group.Model
             // Tribuna = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Tribuna-TgcScene.xml").Meshes[0];  Resta definir si Estadio o Ciudad
             // Automotor = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
             Ciudad = new TgcSceneLoader().loadSceneFromFile(MediaDir + "escena tp-TgcScene.xml");
-            //TgcMesh conversion = Automotor2;
-            //conversion= new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
-            Automotor2.Mesh = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
+
+            //El Quilombo está acá (CREO)
+            Jugador1 = new AutoManejable();
+            Jugador1.Mesh = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0]; 
 
         }
 
@@ -170,10 +174,10 @@ namespace TGC.Group.Model
             camaraAerea.SetCamera(posicionCamaraArea, objetivoCamaraAerea);
 
             camaraAereaFija = new TgcCamera();
-            camaraAereaFija.SetCamera(posicionCamaraArea, Automotor2.Position);
+            camaraAereaFija.SetCamera(posicionCamaraArea, Jugador1.Position);
 
-            camaraAtras = new CamaraAtrasRotadora(Automotor2);
-            camaraAtras.SetCamera(camaraAtras.PosicionCamaraAtras, Automotor2.Position);
+            camaraAtras = new CamaraAtrasRotadora(Jugador1);
+            
             
             
 
@@ -198,33 +202,33 @@ namespace TGC.Group.Model
             //Movimiento del Automotor.
             if (input.keyDown(Key.Left) || input.keyDown(Key.A))
             {
-                Automotor2.giraIzquierda();
+                Jugador1.giraIzquierda();
             }
             else if (input.keyDown(Key.Right) || input.keyDown(Key.D))
             {
-                Automotor2.giraDerecha();
+                Jugador1.giraDerecha();
             }
             if (input.keyDown(Key.Up) || input.keyDown(Key.W))
             {
-                Automotor2.acelera();
-                Automotor2.TiempoBotonApretado = ElapsedTime;
+                Jugador1.acelera();
+                Jugador1.TiempoBotonApretado = ElapsedTime;
 
             }
-            else if ((input.keyDown(Key.Down) || input.keyDown(Key.S)) && Automotor2.Velocidad <= 0)
+            else if ((input.keyDown(Key.Down) || input.keyDown(Key.S)) && Jugador1.Velocidad <= 0)
             {
-                Automotor2.marchaAtras();
-                Automotor2.TiempoBotonApretado = ElapsedTime;
+                Jugador1.marchaAtras();
+                Jugador1.TiempoBotonApretado = ElapsedTime;
             }
             else
             {
-                Automotor2.parado();
+                Jugador1.parado();
             }
 
             if (input.keyDown(Key.RightControl))
 
             {
-                Automotor2.TiempoBotonApretado = ElapsedTime;
-                Automotor2.frena();
+                Jugador1.TiempoBotonApretado = ElapsedTime;
+                Jugador1.frena();
             }
 
             PostUpdate();
@@ -236,11 +240,11 @@ namespace TGC.Group.Model
             PreRender();
 
             //Textos en pantalla.
-            DrawText.drawText("Dirección en X :" + Automotor2.versorDirector().X, 0, 20, Color.OrangeRed);
-            DrawText.drawText("Dirección en Z :" + Automotor2.versorDirector().Z, 0, 30, Color.OrangeRed);
-            DrawText.drawText("Posición en X :" + Automotor2.Position.X, 0, 50, Color.Green);
-            DrawText.drawText("Posición en Z :" + Automotor2.Position.Z, 0, 60, Color.Green);
-            DrawText.drawText("Velocidad en X :" + Automotor2.Velocidad * 15 + "Km/h", 0, 80, Color.Yellow);
+            DrawText.drawText("Dirección en X :" + Jugador1.versorDirector().X, 0, 20, Color.OrangeRed);
+            DrawText.drawText("Dirección en Z :" + Jugador1.versorDirector().Z, 0, 30, Color.OrangeRed);
+            DrawText.drawText("Posición en X :" + Jugador1.Position.X, 0, 50, Color.Green);
+            DrawText.drawText("Posición en Z :" + Jugador1.Position.Z, 0, 60, Color.Green);
+            DrawText.drawText("Velocidad en X :" + Jugador1.Velocidad * 15 + "Km/h", 0, 80, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
             DrawText.drawText("Mantega el botón 3 para ver cámara aérea fija.", 0, 115, Color.White);
             DrawText.drawText("ACELERA :                     FLECHA ARRIBA", 1500, 10, Color.Black);
@@ -256,7 +260,7 @@ namespace TGC.Group.Model
             //Piso.Render();
             //Box.Render();
 
-            Automotor2.Render();
+            Jugador1.Render();
             Ciudad.RenderAll();
 
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
@@ -271,7 +275,7 @@ namespace TGC.Group.Model
             //Pared.Render();
             //Tribuna.Render();
 
-            Automotor2.Dispose();
+            Jugador1.Dispose();
             Ciudad.DisposeAll();
         }
     }
