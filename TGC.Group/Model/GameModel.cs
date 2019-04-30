@@ -1,4 +1,5 @@
 using Microsoft.DirectX.DirectInput;
+using Microsoft.DirectX.Direct3D;
 using System.Drawing;
 using TGC.Core.Direct3D;
 using TGC.Core.Example;
@@ -20,6 +21,9 @@ namespace TGC.Group.Model
     /// </summary>
     public class GameModel : TgcExample
     {
+        
+        
+        
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -31,6 +35,10 @@ namespace TGC.Group.Model
             Name = Game.Default.Name;
             Description = Game.Default.Description;
         }
+
+        //Pantallas
+        private Viewport pantalla1, pantalla2;
+        
 
         //Objetos viejos
         /*private TgcMesh Piso { get; set; }     // Resta definir si Estadio o Ciudad
@@ -146,6 +154,7 @@ namespace TGC.Group.Model
         {
             //Device de DirectX para crear primitivas.
             var d3dDevice = D3DDevice.Instance.Device;
+            var d3dDevice2 = D3DDevice.Instance.Device;
 
             //Objetos
             // Piso = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Piso-TgcScene.xml").Meshes[0];
@@ -156,8 +165,26 @@ namespace TGC.Group.Model
 
             //El Quilombo está acá (CREO)
             Jugador1 = new AutoManejable();
-            Jugador1.Mesh = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0]; 
+            Jugador1.Mesh = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
 
+            //aparato = new Microsoft.DirectX.Direct3D.Device(0);
+
+            //Pantalla 1
+            pantalla1 = new Viewport();
+            pantalla1.X = 0;
+            pantalla1.Y = 0;
+            pantalla1.Width = d3dDevice.Viewport.Width / 2;
+            pantalla1.Height = d3dDevice.Viewport.Height;
+
+            //Pantalla 2
+            pantalla2 = new Viewport();
+            pantalla2.X = d3dDevice2.Viewport.Width / 2;
+            pantalla2.Y = 0;
+            pantalla2.Width = d3dDevice2.Viewport.Width / 2;
+            pantalla2.Height = d3dDevice2.Viewport.Height;
+
+            d3dDevice.Viewport = pantalla1;
+            d3dDevice2.Viewport = pantalla2;
         }
 
 
