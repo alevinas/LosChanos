@@ -21,9 +21,6 @@ namespace TGC.Group.Model
     /// </summary>
     public class GameModel : TgcExample
     {
-        
-        
-        
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -36,44 +33,50 @@ namespace TGC.Group.Model
             Description = Game.Default.Description;
         }
 
-        //Pantallas
-        private Viewport pantalla1, pantalla2;
-        
-
         //Objetos viejos
-        /*private TgcMesh Piso { get; set; }     // Resta definir si Estadio o Ciudad
+        private TgcMesh Piso { get; set; }     // Resta definir si Estadio o Ciudad
         private TgcMesh Pared { get; set; }
         private TgcMesh Tribuna { get; set; }
         private TGCBox Box { get; set; }
-        */
+        
 
         //Objetos nuevos
+        private TgcMesh Auto1 { get; set; }
         private AutoManejable Jugador1 { get; set; }
-        private TgcScene Ciudad { get; set; }
+        //private TgcScene Ciudad { get; set; }
 
         public class CamaraAtrasRotadora : TgcCamera
         {
             private AutoManejable objetivo;
-            public CamaraAtrasRotadora(AutoManejable automotor) {
+            public CamaraAtrasRotadora(AutoManejable automotor)
+            {
                 objetivo = automotor;
                 Position = PosicionCamaraAtras;
-                LookAt = objetivo.Position;
+                LookAt = objetivo.Automotor.Position;
             }
             public float distanciaCamaraAtras = 200;
             public float alturaCamaraAtras = 50;
             private float lambda;
             public float Lambda { get => distanciaCamaraAtras / FastMath.Sqrt((FastMath.Pow2(objetivo.versorDirector().X)) + FastMath.Pow2(objetivo.versorDirector().Z)); set => lambda = value; }
             private TGCVector3 posicionCamaraAtras;
-            public TGCVector3 PosicionCamaraAtras { get => new TGCVector3(objetivo.Position.X - (lambda * objetivo.Direccion * objetivo.versorDirector().X), alturaCamaraAtras, objetivo.Position.Z - (lambda * objetivo.Direccion * objetivo.versorDirector().Z)); set => posicionCamaraAtras = value; }
-
+            public TGCVector3 PosicionCamaraAtras { get => new TGCVector3(objetivo.Automotor.Position.X - (lambda * objetivo.Direccion * objetivo.versorDirector().X), alturaCamaraAtras, objetivo.Automotor.Position.Z - (lambda * objetivo.Direccion * objetivo.versorDirector().Z)); set => posicionCamaraAtras = value; }
+            
             //this.SetCamera(this.PosicionCamaraAtras, objetivo.Position);
         }
 
-        public class AutoManejable : TgcMesh
+        public class AutoManejable
         {
-            public float gradosGiro = 0.017f;
+            private TgcMesh automotor;
+            public TgcMesh Automotor { get => automotor; set => automotor = value; }
+            public AutoManejable(TgcMesh valor)
+            {
+                automotor = valor;
+            }
+
+            public float gradosGiro = 0.017f; // RADIANES
             public float velocidadMinima = -2;
             public float velocidadMaxima = 13;
+            public float direccionInicial = 4.71238898f;  //RADIANTES
 
             private float aceleracion = 0;
             public float Aceleracion { get => aceleracion; set => aceleracion = value; }
@@ -88,12 +91,13 @@ namespace TGC.Group.Model
             private float velocidad = 0;
             public float Velocidad
             {
-                get => FastMath.Min(FastMath.Max((velocidad + (aceleracion * tiempoBotonApretado) - (rozamiento * velocidad)), velocidadMinima), velocidadMaxima);
-                set => velocidad = value;
+                get { return FastMath.Min(FastMath.Max((velocidad + (aceleracion * tiempoBotonApretado) - (rozamiento * velocidad)), velocidadMinima), velocidadMaxima); }
+                set { velocidad = value; }
             }
+
             public TGCVector3 versorDirector()
             {
-                return new TGCVector3(FastMath.Cos(4.71238898f + grados), 0, FastMath.Sin(4.71238898f + grados));
+                return new TGCVector3(FastMath.Cos(direccionInicial + grados), 0, FastMath.Sin(direccionInicial + grados));
             }
 
             public float giroTotal()
@@ -123,25 +127,23 @@ namespace TGC.Group.Model
             public void giraDerecha()
             {
                 grados -= this.giroTotal();
-                this.RotateY(+giroTotal());
+                Automotor.RotateY(+giroTotal());
             }
             public void giraIzquierda()
             {
                 grados += this.giroTotal();
-                this.RotateY(-giroTotal());
+                Automotor.RotateY(-giroTotal());
             }
             public void parado()
             {
-                this.RotateY(0);
+                Automotor.RotateY(0);
                 aceleracion = 0;
                 rozamiento = 0.005f;
             }
             public void moverse()
             {
-                this.Move(this.versorDirector() * velocidad);
+                Automotor.Move(this.versorDirector() * velocidad);
             }
-
-            internal TgcMesh Mesh;
         }
 
 
@@ -153,38 +155,16 @@ namespace TGC.Group.Model
         public override void Init()
         {
             //Device de DirectX para crear primitivas.
-            var d3dDevice = D3DDevice.Instance.Device;
-            var d3dDevice2 = D3DDevice.Instance.Device;
+            var d3dDevice = D3DDevice.Instance.Device;          
 
             //Objetos
-            // Piso = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Piso-TgcScene.xml").Meshes[0];
-            // Pared = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Pared-TgcScene.xml").Meshes[0];
-            // Tribuna = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Tribuna-TgcScene.xml").Meshes[0];  Resta definir si Estadio o Ciudad
+            Piso = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Piso-TgcScene.xml").Meshes[0];
+            Pared = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Pared-TgcScene.xml").Meshes[0];
+            Tribuna = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Tribuna-TgcScene.xml").Meshes[0]; 
             // Automotor = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
-            Ciudad = new TgcSceneLoader().loadSceneFromFile(MediaDir + "escena tp-TgcScene.xml");
-
-            //El Quilombo está acá (CREO)
-            Jugador1 = new AutoManejable();
-            Jugador1.Mesh = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
-
-            //aparato = new Microsoft.DirectX.Direct3D.Device(0);
-
-            //Pantalla 1
-            pantalla1 = new Viewport();
-            pantalla1.X = 0;
-            pantalla1.Y = 0;
-            pantalla1.Width = d3dDevice.Viewport.Width / 2;
-            pantalla1.Height = d3dDevice.Viewport.Height;
-
-            //Pantalla 2
-            pantalla2 = new Viewport();
-            pantalla2.X = d3dDevice2.Viewport.Width / 2;
-            pantalla2.Y = 0;
-            pantalla2.Width = d3dDevice2.Viewport.Width / 2;
-            pantalla2.Height = d3dDevice2.Viewport.Height;
-
-            d3dDevice.Viewport = pantalla1;
-            d3dDevice2.Viewport = pantalla2;
+            //Ciudad = new TgcSceneLoader().loadSceneFromFile(MediaDir + "escena tp-TgcScene.xml");
+            Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
+            Jugador1 = new AutoManejable(Auto1);
         }
 
 
@@ -192,7 +172,7 @@ namespace TGC.Group.Model
         {
             PreUpdate();
             //Obtenemos acceso al objeto que maneja input de mouse y teclado del framework
-            var input = Input;     
+            var input = Input;
 
             //Cosas de Cámaras.
             var posicionCamaraArea = new TGCVector3(50, 2900, 0);
@@ -201,17 +181,17 @@ namespace TGC.Group.Model
             camaraAerea.SetCamera(posicionCamaraArea, objetivoCamaraAerea);
 
             camaraAereaFija = new TgcCamera();
-            camaraAereaFija.SetCamera(posicionCamaraArea, Jugador1.Position);
+            camaraAereaFija.SetCamera(posicionCamaraArea, Auto1.Position);
 
             camaraAtras = new CamaraAtrasRotadora(Jugador1);
-            
-            
-            
+            camaraAtras.SetCamera(camaraAtras.PosicionCamaraAtras, Auto1.Position);
+
+
 
             //Selección de Cámaras. (FALTA TERMINAR).
             if (input.keyDown(Key.D1))
             {
-                Camara = camaraAtras;
+                Camara = camaraAereaFija;
             }
             else if (input.keyDown(Key.D2))
             {
@@ -219,11 +199,11 @@ namespace TGC.Group.Model
             }
             else if (input.keyDown(Key.D3))
             {
-                Camara = camaraAereaFija;
+                Camara = camaraAtras;
             }
             else
             {
-                Camara = camaraAtras;
+                Camara = camaraAerea;
             }
 
             //Movimiento del Automotor.
@@ -238,23 +218,24 @@ namespace TGC.Group.Model
             if (input.keyDown(Key.Up) || input.keyDown(Key.W))
             {
                 Jugador1.acelera();
-                Jugador1.TiempoBotonApretado = ElapsedTime;
+                Jugador1.TiempoBotonApretado += ElapsedTime;
 
             }
             else if ((input.keyDown(Key.Down) || input.keyDown(Key.S)) && Jugador1.Velocidad <= 0)
             {
                 Jugador1.marchaAtras();
-                Jugador1.TiempoBotonApretado = ElapsedTime;
+                Jugador1.TiempoBotonApretado += ElapsedTime;
             }
             else
             {
                 Jugador1.parado();
+                Jugador1.TiempoBotonApretado = 0;
             }
 
             if (input.keyDown(Key.RightControl))
 
             {
-                Jugador1.TiempoBotonApretado = ElapsedTime;
+                Jugador1.TiempoBotonApretado = +ElapsedTime;
                 Jugador1.frena();
             }
 
@@ -269,9 +250,10 @@ namespace TGC.Group.Model
             //Textos en pantalla.
             DrawText.drawText("Dirección en X :" + Jugador1.versorDirector().X, 0, 20, Color.OrangeRed);
             DrawText.drawText("Dirección en Z :" + Jugador1.versorDirector().Z, 0, 30, Color.OrangeRed);
-            DrawText.drawText("Posición en X :" + Jugador1.Position.X, 0, 50, Color.Green);
-            DrawText.drawText("Posición en Z :" + Jugador1.Position.Z, 0, 60, Color.Green);
+            DrawText.drawText("Posición en X :" + Jugador1.Automotor.Position.X, 0, 50, Color.Green);
+            DrawText.drawText("Posición en Z :" + Jugador1.Automotor.Position.Z, 0, 60, Color.Green);
             DrawText.drawText("Velocidad en X :" + Jugador1.Velocidad * 15 + "Km/h", 0, 80, Color.Yellow);
+            DrawText.drawText("Tiempo Botón apretado :" + Jugador1.TiempoBotonApretado, 0, 90, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
             DrawText.drawText("Mantega el botón 3 para ver cámara aérea fija.", 0, 115, Color.White);
             DrawText.drawText("ACELERA :                     FLECHA ARRIBA", 1500, 10, Color.Black);
@@ -282,13 +264,13 @@ namespace TGC.Group.Model
 
             //Render Objetos.
 
-            //Pared.Render();
-            //Tribuna.Render();
-            //Piso.Render();
-            //Box.Render();
+            Pared.Render();
+            Tribuna.Render();
+            Piso.Render();
+            
 
-            Jugador1.Render();
-            Ciudad.RenderAll();
+            Auto1.Render();
+            //Ciudad.RenderAll();
 
             //Finaliza el render y presenta en pantalla, al igual que el preRender se debe para casos puntuales es mejor utilizar a mano las operaciones de EndScene y PresentScene
             PostRender();
@@ -297,13 +279,13 @@ namespace TGC.Group.Model
 
         public override void Dispose()
         {
-            //Box.Dispose();
-            //Piso.Dispose();
-            //Pared.Render();
-            //Tribuna.Render();
+            
+            Piso.Dispose();
+            Pared.Render();
+            Tribuna.Render();
 
-            Jugador1.Dispose();
-            Ciudad.DisposeAll();
+            Auto1.Dispose();
+            //Ciudad.DisposeAll();
         }
     }
 }
