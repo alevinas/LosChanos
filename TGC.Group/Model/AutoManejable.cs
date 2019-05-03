@@ -19,12 +19,9 @@ namespace TGC.Group.Model
         {
             maya = valor;
         }
-
         public float gradosGiro = 0.017f;
         public float velocidadMinima = -2;
         public float velocidadMaxima = 13;
-
-        
         private float Aceleracion { get; set; }
         public int Direccion { get; set; }
         public float Grados { get; set; }
@@ -62,8 +59,7 @@ namespace TGC.Group.Model
         public void marchaAtras()
         {
             Aceleracion += 0.02f;
-            Direccion = -1;
-            
+            Direccion = -1;        
         }
         public void giraDerecha()
         {
@@ -78,12 +74,21 @@ namespace TGC.Group.Model
         public void parado()
         {
             Maya.RotateY(0);
-          
-            if (Aceleracion > 0)
+            if (Aceleracion != 0)
             {
-                Aceleracion -= 0.008f;
-            }      
-            
+                if (Aceleracion > 0.05f)
+                {
+                    Aceleracion -= 0.008f;
+                }
+                else if (Aceleracion < -0.05f)
+                {
+                    Aceleracion += 0.008f;
+                }
+                else
+                {
+                    Aceleracion = 0;
+                }
+            }
         }
         public void moverse()
         {
