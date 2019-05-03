@@ -88,29 +88,26 @@ namespace TGC.Group.Model
             {
                 Jugador1.giraDerecha();
             }
+
             if (input.keyDown(Key.Up) || input.keyDown(Key.W))
             {
                 Jugador1.acelera();
-                Jugador1.TiempoBotonApretado += ElapsedTime;
-
             }
-            else if ((input.keyDown(Key.Down) || input.keyDown(Key.S)) && Jugador1.Velocidad <= 0)
+            else if (input.keyDown(Key.Down) || input.keyDown(Key.S))
             {
-                Jugador1.marchaAtras();
-                Jugador1.TiempoBotonApretado += ElapsedTime;
+                Jugador1.marchaAtras();  
             }
             else
             {
                 Jugador1.parado();
-                Jugador1.TiempoBotonApretado = 0;
             }
 
             if (input.keyDown(Key.RightControl))
-
             {
-                Jugador1.TiempoBotonApretado = +ElapsedTime;
                 Jugador1.frena();
             }
+
+            Jugador1.moverse();
 
             PostUpdate();
         }
@@ -126,7 +123,6 @@ namespace TGC.Group.Model
             DrawText.drawText("Posición en X :" + Jugador1.Maya.Position.X, 0, 50, Color.Green);
             DrawText.drawText("Posición en Z :" + Jugador1.Maya.Position.Z, 0, 60, Color.Green);
             DrawText.drawText("Velocidad en X :" + Jugador1.Velocidad * 15 + "Km/h", 0, 80, Color.Yellow);
-            DrawText.drawText("Tiempo Botón apretado :" + Jugador1.TiempoBotonApretado, 0, 90, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
             DrawText.drawText("Mantega el botón 3 para ver cámara aérea fija.", 0, 115, Color.White);
             DrawText.drawText("ACELERA :                     FLECHA ARRIBA", 1500, 10, Color.Black);

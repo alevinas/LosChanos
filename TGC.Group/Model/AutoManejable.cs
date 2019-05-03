@@ -13,31 +13,25 @@ namespace TGC.Group.Model
 {
     public class AutoManejable
     {
-        
-        public TgcMesh Maya { get; set; }
+        private TgcMesh maya;
+        public TgcMesh Maya { get => maya; set => maya = value; }
         public AutoManejable(TgcMesh valor)
         {
-            Maya = valor;
+            maya = valor;
         }
 
         public float gradosGiro = 0.017f;
         public float velocidadMinima = -2;
         public float velocidadMaxima = 13;
 
-        private float aceleracion = 0;
-        public float Aceleracion { get => aceleracion; set => aceleracion = value; }
-        private float tiempoBotonApretado = 0.0f;
-        public float TiempoBotonApretado { get => tiempoBotonApretado; set => tiempoBotonApretado = value; }
-        private int direccion = 1;
-        public int Direccion { get => direccion; set => direccion = value; }
-        private float rozamiento = 0.005f;
-        public float Rozamiento { get => rozamiento; set => rozamiento = value; }
-
+        
+        private float Aceleracion { get; set; }
+        public int Direccion { get; set; }
         public float Grados { get; set; }
-        private float velocidad = 0;
+        private float velocidad;
         public float Velocidad
         {
-            get => FastMath.Min(FastMath.Max((velocidad + (aceleracion * tiempoBotonApretado) - (rozamiento * velocidad)), velocidadMinima), velocidadMaxima);
+            get => FastMath.Min(FastMath.Max(Aceleracion * Direccion, velocidadMinima), velocidadMaxima);
             set => velocidad = value;
         }
 
@@ -48,27 +42,28 @@ namespace TGC.Group.Model
 
         public float giroTotal()
         {
-            return gradosGiro * (velocidad / 10);
+            return gradosGiro * (Velocidad / 10);
         }
 
         //Movimiento
         public void acelera()
         {
-            aceleracion += 0.02f;
-            direccion = 1;
+            Aceleracion += 0.02f;
+            Direccion = 1;
         }
         public void frena()
         {
-            rozamiento += 0.010f;
-            if (velocidad < 0.05f)
+            Aceleracion -= 0.1f;
+            if (Velocidad < 1f)
             {
-                velocidad = 0;
+                Aceleracion = 0;
             }
         }
         public void marchaAtras()
         {
-            aceleracion -= 0.02f;
-            direccion = -1;
+            Aceleracion += 0.02f;
+            Direccion = -1;
+            
         }
         public void giraDerecha()
         {
@@ -83,12 +78,16 @@ namespace TGC.Group.Model
         public void parado()
         {
             Maya.RotateY(0);
-            aceleracion = 0;
-            rozamiento = 0.005f;
+          
+            if (Aceleracion > 0)
+            {
+                Aceleracion -= 0.008f;
+            }      
+            
         }
         public void moverse()
         {
-            Maya.Move(this.versorDirector() * velocidad);
+            maya.Move(this.versorDirector() * Velocidad);
         }
     }
 
