@@ -35,9 +35,6 @@ namespace TGC.Group.Model
         private TgcMesh Auto1 { get; set; }
         private AutoManejable Jugador1 { get; set; }
 
-        //Camaras
-        private TgcCamera camaraAereaFija;
-
         public override void Init()
         {
             //Device de DirectX para crear primitivas.
@@ -48,6 +45,7 @@ namespace TGC.Group.Model
             Pared = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Pared-TgcScene.xml").Meshes[0];
             Tribuna = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Tribuna-TgcScene.xml").Meshes[0];
             Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
+            //this.Auto1.AutoTransform = false;
             Jugador1 = new AutoManejable(Auto1);
         }
 
@@ -57,13 +55,6 @@ namespace TGC.Group.Model
             PreUpdate();
             //Obtenemos acceso al objeto que maneja input de mouse y teclado del framework
             var input = Input;
-
-            //Cosas de Cámaras.
-            var posicionCamaraAereaFija = new TGCVector3(50, 2900, 0);
-            var objetivoCamaraAereaFija = TGCVector3.Empty;
-            camaraAereaFija = new TgcCamera();
-            camaraAereaFija.SetCamera(posicionCamaraAereaFija, objetivoCamaraAereaFija);
-
 
             //Selección de Cámaras. (FALTA TERMINAR).
             if (input.keyDown(Key.D1))
@@ -76,38 +67,38 @@ namespace TGC.Group.Model
             }
             else if (input.keyDown(Key.D3))
             {
-                Camara = camaraAereaFija;
+                Camara = new CamaraFija();
             }
 
             //Movimiento del Automotor.
             if (input.keyDown(Key.Left) || input.keyDown(Key.A))
             {
-                Jugador1.giraIzquierda();
+                Jugador1.GiraIzquierda();
             }
             else if (input.keyDown(Key.Right) || input.keyDown(Key.D))
             {
-                Jugador1.giraDerecha();
+                Jugador1.GiraDerecha();
             }
 
             if (input.keyDown(Key.Up) || input.keyDown(Key.W))
             {
-                Jugador1.acelera();
+                Jugador1.Acelera();
             }
             else if (input.keyDown(Key.Down) || input.keyDown(Key.S))
             {
-                Jugador1.marchaAtras();  
+                Jugador1.MarchaAtras();  
             }
             else
             {
-                Jugador1.parado();
+                Jugador1.Parado();
             }
 
             if (input.keyDown(Key.RightControl))
             {
-                Jugador1.frena();
+                Jugador1.Frena();
             }
 
-            Jugador1.moverse();
+            Jugador1.Moverse();
 
             PostUpdate();
         }
@@ -118,8 +109,8 @@ namespace TGC.Group.Model
             PreRender();
 
             //Textos en pantalla.
-            DrawText.drawText("Dirección en X :" + Jugador1.versorDirector().X, 0, 20, Color.OrangeRed);
-            DrawText.drawText("Dirección en Z :" + Jugador1.versorDirector().Z, 0, 30, Color.OrangeRed);
+            DrawText.drawText("Dirección en X :" + Jugador1.VersorDirector().X, 0, 20, Color.OrangeRed);
+            DrawText.drawText("Dirección en Z :" + Jugador1.VersorDirector().Z, 0, 30, Color.OrangeRed);
             DrawText.drawText("Posición en X :" + Jugador1.Maya.Position.X, 0, 50, Color.Green);
             DrawText.drawText("Posición en Z :" + Jugador1.Maya.Position.Z, 0, 60, Color.Green);
             DrawText.drawText("Velocidad en X :" + Jugador1.Velocidad * 15 + "Km/h", 0, 80, Color.Yellow);
