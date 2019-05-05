@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TGC.Group</RootNamespace>
     <AssemblyName>TGC.Group</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -54,6 +54,26 @@
   <PropertyGroup>
     <StartupObject>TGC.Group.Program</StartupObject>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="BulletSharp, Version=0.10.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\BulletSharp.0.10\lib\net40-client\BulletSharp.dll</HintPath>
@@ -78,10 +98,12 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="TGC.Core, Version=2.3.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\TGC.Core.2.3.3\lib\net471\TGC.Core.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\Develop\TGC\tgc-viewer-master2\TGC.Core\bin\x86\Debug\TGC.Core.dll</HintPath>
     </Reference>
-    <Reference Include="TGC.Examples">
-      <HintPath>D:\Develop\TGC\tgc-viewer-master\TGC.Examples\bin\Debug\TGC.Examples.dll</HintPath>
+    <Reference Include="TGC.Examples, Version=2.3.3.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\Develop\TGC\tgc-viewer-master2\TGC.Examples\bin\x86\Debug\TGC.Examples.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

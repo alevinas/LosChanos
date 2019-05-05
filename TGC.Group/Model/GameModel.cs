@@ -42,7 +42,7 @@ namespace TGC.Group.Model
             Pared = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Pared-TgcScene.xml").Meshes[0];
             Tribuna = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Tribuna-TgcScene.xml").Meshes[0];
             Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
-            //this.Auto1.AutoTransform = false;
+            Auto1.AutoTransformEnable = false;
             Jugador1 = new AutoManejable(Auto1);
         }
 
@@ -54,7 +54,7 @@ namespace TGC.Group.Model
             var input = Input;
 
             Camara = new CamaraAtras(Jugador1);
-
+            Jugador1.ElapsedTime = ElapsedTime;
 
             //Selección de Cámaras. (FALTA TERMINAR).
             if (input.keyDown(Key.D1))
@@ -83,6 +83,7 @@ namespace TGC.Group.Model
             if (input.keyDown(Key.Up) || input.keyDown(Key.W))
             {
                 Jugador1.Acelera();
+                Jugador1.ElapsedTime = ElapsedTime;
             }
             else if (input.keyDown(Key.Down) || input.keyDown(Key.S))
             {
@@ -121,6 +122,9 @@ namespace TGC.Group.Model
             DrawText.drawText("Velocidad en X :" + Jugador1.Velocidad * 15 + "Km/h", 0, 80, Color.Yellow);
             DrawText.drawText("Mantega el botón 2 para ver cámara aérea.", 0, 100, Color.White);
             DrawText.drawText("Mantega el botón 3 para ver cámara aérea fija.", 0, 115, Color.White);
+
+            DrawText.drawText("ElapsedTime" + ElapsedTime, 0, 130, Color.White);
+
             DrawText.drawText("ACELERA :                     FLECHA ARRIBA", 1500, 10, Color.Black);
             DrawText.drawText("DOBLA DERECHA :           FLECHA DERECHA", 1500, 25, Color.Black);
             DrawText.drawText("DOBLA IZQUIERDA :         FLECHA IZQUIERDA", 1500, 40, Color.Black);

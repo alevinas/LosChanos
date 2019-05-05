@@ -1,7 +1,6 @@
 ﻿using TGC.Core.Mathematica;
 using TGC.Core.SceneLoader;
 
-
 namespace TGC.Group.Model
 {
     public class AutoManejable
@@ -12,7 +11,7 @@ namespace TGC.Group.Model
         {
             maya = valor;
         }
-        public float gradosGiro = 0.017f;
+        public float gradosGiro = FastMath.ToRad(1);
         public float velocidadMinima = -2;
         public float velocidadMaxima = 13;
         public float altura;
@@ -38,7 +37,7 @@ namespace TGC.Group.Model
             return new TGCVector3(FastMath.Cos(DireccionInicial + Grados), 0, FastMath.Sin(DireccionInicial + Grados));
         }
 
-        public float giroTotal()
+        public float GiroTotal()
         {
             return gradosGiro * (Velocidad / 10);
         }
@@ -78,20 +77,15 @@ namespace TGC.Group.Model
         }
         public void GiraDerecha()
         {
-            Grados -= this.giroTotal();
-            //Aceleracion -= 0.008f;
-            Maya.RotateY(+giroTotal());
+            Grados -= GiroTotal();
         }
         public void GiraIzquierda()
         {
-            Grados += this.giroTotal();
-            //Aceleracion -= 0.008f;
-            Maya.RotateY(-giroTotal());
+            Grados += GiroTotal();     
         }
         public void Parado()
         {
             VelocidadInicial = Velocidad;
-            Maya.RotateY(0);
             Aceleracion = 0;
             if (Velocidad != 0)
             {
@@ -126,15 +120,19 @@ namespace TGC.Group.Model
             El bug del salto del auto es que doblando hacia derecha y acelerando no es posible saltar porque se solapan los ejes. El rotateY(-giroTotal) esta restando en el eje Y
             y me impide saltar. Creo que hay que usar TGCVector3.TransformCoordinate()
          */
+        public float ElapsedTime { get => elapsedTime; set => elapsedTime = value; }
 
-        //public TGCMatrix Traslacion { get => TGCMatrix.Translation(VersorDirector().X * Velocidad, 0, VersorDirector().Z * Velocidad); }
-        //public TGCMatrix Rotacion {  get => TGCMatrix.RotationY(this.giroTotal()); }
-        //public TGCMatrix Movimiento { get => Traslacion * Rotacion; }
-
+        private float elapsedTime;
+        public TGCMatrix Traslacion { get => TGCMatrix.Translation(VersorDirector().X * Velocidad, 0, VersorDirector().Z * Velocidad); }
+        public TGCMatrix Rotacion {  get => TGCMatrix.RotationY(-Grados); }
+        public TGCMatrix Movimiento { get => Rotacion * TraslacionAcumulada; }
+        public TGCMatrix TraslacionAcumulada = TGCMatrix.Identity;
         public void Moverse()
         {
-            //maya.Transform = Traslacion * Rotacion;
-            maya.Move(VersorDirector() * Velocidad);
+            TraslacionAcumulada *= Traslacion;
+            Maya.Position += (VersorDirector() * Velocidad);
+            Maya.Transform = Movimiento;
+         
         }
     }
 }
