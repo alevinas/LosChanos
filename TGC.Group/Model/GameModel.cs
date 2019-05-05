@@ -13,10 +13,8 @@ using TGC.Core.Textures;
 
 namespace TGC.Group.Model
 {
-
     public class GameModel : TgcExample
     {
-
         public GameModel(string mediaDir, string shadersDir) : base(mediaDir, shadersDir)
         {
             Category = Game.Default.Category;
@@ -29,7 +27,6 @@ namespace TGC.Group.Model
         private TgcMesh Pared { get; set; }
         private TgcMesh Tribuna { get; set; }
         private TGCBox Box { get; set; }
-
 
         //Objetos nuevos
         private TgcMesh Auto1 { get; set; }
@@ -55,6 +52,9 @@ namespace TGC.Group.Model
             PreUpdate();
             //Obtenemos acceso al objeto que maneja input de mouse y teclado del framework
             var input = Input;
+
+            Camara = new CamaraAtras(Jugador1);
+
 
             //Selección de Cámaras. (FALTA TERMINAR).
             if (input.keyDown(Key.D1))
@@ -98,6 +98,11 @@ namespace TGC.Group.Model
                 Jugador1.Frena();
             }
 
+            if( input.keyDown(Key.Space))
+             {
+                Jugador1.Salta();
+             }
+
             Jugador1.Moverse();
 
             PostUpdate();
@@ -121,6 +126,7 @@ namespace TGC.Group.Model
             DrawText.drawText("DOBLA IZQUIERDA :         FLECHA IZQUIERDA", 1500, 40, Color.Black);
             DrawText.drawText("MARCHA ATRÁS :            FLECHA ABAJO", 1500, 60, Color.Black);
             DrawText.drawText("FRENO :                        CONTROL DERECHO", 1500, 80, Color.Black);
+            DrawText.drawText("SALTAR :                     BARRA ESPACIADORA", 1500, 100, Color.Black);
 
             //Render Objetos.
 

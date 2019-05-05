@@ -15,6 +15,10 @@ namespace TGC.Group.Model
         public float gradosGiro = 0.017f;
         public float velocidadMinima = -2;
         public float velocidadMaxima = 13;
+        public float altura;
+        public float alturaMaxima = 12;
+        private int DireccionSalto { get; set; }
+        public float velocidadSalto = 3.5f;
         private float direccionInicial;
         public float DireccionInicial { get => FastMath.ToRad(270); set => direccionInicial = value; }
         private float Aceleracion { get; set; }
@@ -75,11 +79,13 @@ namespace TGC.Group.Model
         public void GiraDerecha()
         {
             Grados -= this.giroTotal();
+            //Aceleracion -= 0.008f;
             Maya.RotateY(+giroTotal());
         }
         public void GiraIzquierda()
         {
             Grados += this.giroTotal();
+            //Aceleracion -= 0.008f;
             Maya.RotateY(-giroTotal());
         }
         public void Parado()
@@ -99,17 +105,38 @@ namespace TGC.Group.Model
                 }
             }
         }
+
+        public void Salta()
+        {
+            altura += 30;
+            if (Maya.Position.Y > alturaMaxima)
+            {
+                DireccionSalto = -1;
+            }
+            else if (Maya.Position.Y < 0)
+            {
+                DireccionSalto = 1;
+                altura = 0;
+            }
+            Maya.Position += new TGCVector3(0, velocidadSalto * DireccionSalto * altura, 0);
+        }
+
+
+        /*  
+            El bug del salto del auto es que doblando hacia derecha y acelerando no es posible saltar porque se solapan los ejes. El rotateY(-giroTotal) esta restando en el eje Y
+            y me impide saltar. Creo que hay que usar TGCVector3.TransformCoordinate()
+         */
+
         //public TGCMatrix Traslacion { get => TGCMatrix.Translation(VersorDirector().X * Velocidad, 0, VersorDirector().Z * Velocidad); }
         //public TGCMatrix Rotacion {  get => TGCMatrix.RotationY(this.giroTotal()); }
         //public TGCMatrix Movimiento { get => Traslacion * Rotacion; }
+
         public void Moverse()
-        { 
+        {
             //maya.Transform = Traslacion * Rotacion;
-            maya.Move(VersorDirector()* Velocidad);
+            maya.Move(VersorDirector() * Velocidad);
         }
     }
-
-
-
 }
+
 
