@@ -54,9 +54,9 @@ namespace TGC.Group.Model
             Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml");
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
 
-            //Edificios = new ColisionesEdificios();
-            //Edificios = FisicasEdificios.Init(this);
-
+            //Fisica = new FisicaMundo();
+            //Fisica.cargarEdificios(Plaza.Meshes);
+            //Fisica.Init(MediaDir);
 
             Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(0, 0, 0), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
         }
@@ -66,6 +66,7 @@ namespace TGC.Group.Model
             PreUpdate();
             //Obtenemos acceso al objeto que maneja input de mouse y teclado del framework
             var input = Input;
+            //Fisica.Update(input);
             Camara = new CamaraAtras(Jugador1);
 
 
@@ -132,6 +133,8 @@ namespace TGC.Group.Model
         {
             //Inicio el render de la escena, para ejemplos simples. Cuando tenemos postprocesado o shaders es mejor realizar las operaciones según nuestra conveniencia.
             PreRender();
+            //Fisica.Render(ElapsedTime);
+
 
             //Textos en pantalla.
             DrawText.drawText("Dirección en X :" + Jugador1.VersorDirector().X, 0, 20, Color.OrangeRed);
@@ -163,6 +166,7 @@ namespace TGC.Group.Model
  
             Jugador1.DisposeAll();
             Plaza.DisposeAll();
+           // Fisica.Dispose();
         }
     }
 }
