@@ -12,7 +12,7 @@ namespace TGC.Group {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.1.0.0")]
     internal sealed partial class Game : global::System.Configuration.ApplicationSettingsBase {
         
         private static Game defaultInstance = ((Game)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Game())));
@@ -37,7 +37,7 @@ namespace TGC.Group {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("2019_1C_3051_Los Chanos")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Grupo 99")]
         public string Name {
             get {
                 return ((string)(this["Name"]));
@@ -49,7 +49,19 @@ namespace TGC.Group {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("..\\..\\Shaders\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Mi idea - Descripción de la idea")]
+        public string Description {
+            get {
+                return ((string)(this["Description"]));
+            }
+            set {
+                this["Description"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("..\\..\\..\\Shaders\\")]
         public string ShadersDirectory {
             get {
                 return ((string)(this["ShadersDirectory"]));
@@ -61,7 +73,7 @@ namespace TGC.Group {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("..\\..\\Media\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("..\\..\\..\\Media\\")]
         public string MediaDirectory {
             get {
                 return ((string)(this["MediaDirectory"]));
@@ -80,18 +92,6 @@ namespace TGC.Group {
             }
             set {
                 this["TexturaCaja"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Destruction-Derby")]
-        public string Description {
-            get {
-                return ((string)(this["Description"]));
-            }
-            set {
-                this["Description"] = value;
             }
         }
     }

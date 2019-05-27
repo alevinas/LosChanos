@@ -58,6 +58,10 @@ namespace TGC.Group.Model
             //Fisica.cargarEdificios(Plaza.Meshes);
             //Fisica.Init(MediaDir);
 
+            Fisica = new FisicaMundo();
+            Fisica.cargarEdificios(Plaza.Meshes);
+            Fisica.Init(MediaDir);
+
             Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(0, 0, 0), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
         }
 
@@ -66,7 +70,7 @@ namespace TGC.Group.Model
             PreUpdate();
             //Obtenemos acceso al objeto que maneja input de mouse y teclado del framework
             var input = Input;
-            //Fisica.Update(input);
+            Fisica.Update(input);
             Camara = new CamaraAtras(Jugador1);
 
 
@@ -133,7 +137,7 @@ namespace TGC.Group.Model
         {
             //Inicio el render de la escena, para ejemplos simples. Cuando tenemos postprocesado o shaders es mejor realizar las operaciones según nuestra conveniencia.
             PreRender();
-            //Fisica.Render(ElapsedTime);
+            Fisica.Render(ElapsedTime);
 
 
             //Textos en pantalla.
@@ -166,7 +170,7 @@ namespace TGC.Group.Model
  
             Jugador1.DisposeAll();
             Plaza.DisposeAll();
-           // Fisica.Dispose();
+            Fisica.Dispose();
         }
     }
 }

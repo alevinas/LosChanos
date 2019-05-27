@@ -18,7 +18,7 @@ namespace TGC.Group.Model
         private SequentialImpulseConstraintSolver constraintSolver;
         private BroadphaseInterface overlappingPairCache;
 
-        private List<TgcMesh> meshes = new List<TgcMesh>();
+        private List<TgcMesh> Edificios = new List<TgcMesh>();
         private RigidBody piso;
         private TgcMesh auto;
         private RigidBody cuerpoAuto;
@@ -27,7 +27,7 @@ namespace TGC.Group.Model
 
         public void cargarEdificios(List<TgcMesh> meshes)
         {
-            this.meshes = meshes;
+            this.Edificios = meshes;
         }
 
         public virtual void Init(string MediaDir)
@@ -40,10 +40,10 @@ namespace TGC.Group.Model
             dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver, collisionConfiguration);
             dynamicsWorld.Gravity = new TGCVector3(0, -100f, 0).ToBulletVector3();
 
-            foreach (var mesh in meshes)
+            foreach (var mesh in Edificios)
             {
-                var buildingbody = BulletRigidBodyFactory.Instance.CreateRigidBodyFromTgcMesh(mesh);
-                dynamicsWorld.AddRigidBody(buildingbody);
+                var objetos = BulletRigidBodyFactory.Instance.CreateRigidBodyFromTgcMesh(mesh);
+                dynamicsWorld.AddRigidBody(objetos);
             }
         
             var cuerpoPiso = new StaticPlaneShape(TGCVector3.Up.ToBulletVector3(), 10);
@@ -51,7 +51,7 @@ namespace TGC.Group.Model
             var movimientoPiso = new DefaultMotionState();
             var pisoConstruccion = new RigidBodyConstructionInfo(0, movimientoPiso, cuerpoPiso);
             piso = new RigidBody(pisoConstruccion);
-            piso.Friction = 1;
+            piso.Friction = 0.00001f;
             piso.RollingFriction = 1;
             piso.Restitution = 1f;
             piso.UserObject = "floorBody";
@@ -66,7 +66,7 @@ namespace TGC.Group.Model
         public void Render(float tiempo)
         {
             //Hacemos render de la escena.
-            foreach (var mesh in meshes) mesh.Render();
+            foreach (var mesh in Edificios) mesh.Render();
 
             //Se hace el transform a la posicion que devuelve el el Rigid Body del Hummer
             //hummer.Position = new TGCVector3(hummerBody.CenterOfMassPosition.X, hummerBody.CenterOfMassPosition.Y + 0, hummerBody.CenterOfMassPosition.Z);
@@ -85,10 +85,7 @@ namespace TGC.Group.Model
             piso.Dispose();
 
             //Dispose de Meshes
-            foreach (TgcMesh mesh in meshes)
-            {
-                mesh.Dispose();
-            }
+            foreach (TgcMesh mesh in Edificios) mesh.Dispose();
 
         }
     }

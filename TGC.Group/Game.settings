@@ -9,16 +9,16 @@
       <Value Profile="(Default)">2019_1C_3051_Los Chanos</Value>
     </Setting>
     <Setting Name="ShadersDirectory" Type="System.String" Scope="User">
-      <Value Profile="(Default)">..\..\Shaders\</Value>
+      <Value Profile="(Default)">..\..\..\Shaders\</Value>
     </Setting>
     <Setting Name="MediaDirectory" Type="System.String" Scope="User">
-      <Value Profile="(Default)">..\..\Media\</Value>
-    </Setting>
-    <Setting Name="TexturaCaja" Type="System.String" Scope="User">
-      <Value Profile="(Default)">cajaMadera4.jpg</Value>
+      <Value Profile="(Default)">..\..\..\Media\</Value>
     </Setting>
     <Setting Name="Description" Type="System.String" Scope="User">
       <Value Profile="(Default)">Destruction-Derby</Value>
+    </Setting>
+    <Setting Name="TexturaCaja" Type="System.String" Scope="User">
+      <Value Profile="(Default)">cajaMadera4.jpg</Value>
     </Setting>
   </Settings>
 </SettingsFile>

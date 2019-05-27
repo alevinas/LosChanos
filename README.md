@@ -1,4 +1,4 @@
-# LosChanos
+# tgc-group
 [![Build status](https://ci.appveyor.com/api/projects/status/uvyboubq91uhwf3v?svg=true)](https://ci.appveyor.com/project/rejurime/tgc-group)
 [![BCH compliance](https://bettercodehub.com/edge/badge/tgc-utn/tgc-group?branch=master)](https://bettercodehub.com/)
 [![GitHub license](https://img.shields.io/github/license/tgc-utn/tgc-group.svg)](https://github.com/tgc-utn/tgc-group/blob/master/LICENSE)
