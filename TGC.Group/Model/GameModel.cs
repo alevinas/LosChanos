@@ -99,7 +99,7 @@ namespace TGC.Group.Model
                 Jugador1.NoGira();
             }
 
-            if (input.keyDown(Key.Up) || input.keyDown(Key.W))
+            if (input.keyDown(Key.W))
             {
                 Jugador1.Acelera();
 

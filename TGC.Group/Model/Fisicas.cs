@@ -75,13 +75,18 @@ namespace TGC.Group.Model
             auto = boxMesh1.ToMesh("box");
             boxMesh1.Dispose();
 
-            var tamañoAuto = new TGCVector3(55, 20, 80);
-            cuerpoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 10, auto.Position, 0, 0, 0, 0, true);
+            var tamañoAuto = new TGCVector3(55, 80, 0);
+            cuerpoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 10, auto.Position, 0, 0, 0, 0.55f, true);
             cuerpoAuto.Restitution = 0;
             cuerpoAuto.Gravity = new TGCVector3(0, -100f, 0).ToBulletVector3();
             dynamicsWorld.AddRigidBody(cuerpoAuto);
 
             auto = loader.loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
+            auto.Position = TGCVector3.Empty;
+
+            //Vectores de la direccion del auto post-choque
+            adelante = new TGCVector3(0, 0, 1);
+            izquierda_derecha = new TGCVector3(1, 0, 0);
         }
 
         public void Update(TgcD3dInput input)
@@ -96,6 +101,25 @@ namespace TGC.Group.Model
                 cuerpoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
                 cuerpoAuto.ApplyCentralImpulse(-fuerza * adelante.ToBulletVector3());
             }
+            else if(input.keyDown(Key.LeftArrow))
+            {
+                cuerpoAuto.ActivationState = ActivationState.ActiveTag;
+                cuerpoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
+                cuerpoAuto.ApplyCentralImpulse(fuerza * izquierda_derecha.ToBulletVector3());
+            }
+            else if(input.keyDown(Key.RightArrow))
+            {
+                cuerpoAuto.ActivationState = ActivationState.ActiveTag;
+                cuerpoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
+                cuerpoAuto.ApplyCentralImpulse(-fuerza * izquierda_derecha.ToBulletVector3());
+            }
+            else if(input.keyDown(Key.DownArrow))
+            {
+                cuerpoAuto.ActivationState = ActivationState.ActiveTag;
+                cuerpoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
+                cuerpoAuto.ApplyCentralImpulse(fuerza * adelante.ToBulletVector3());
+            }
+
         }
 
         public void Render(float tiempo)
