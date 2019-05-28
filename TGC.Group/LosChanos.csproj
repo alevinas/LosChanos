@@ -117,7 +117,6 @@
     </Compile>
     <Compile Include="Model\AutoManejable.cs" />
     <Compile Include="Model\Camaras.cs" />
-    <Compile Include="Model\CubePhysic.cs" />
     <Compile Include="Model\Fisicas.cs" />
     <Compile Include="Model\GameModel.cs" />
     <Compile Include="Program.cs" />
