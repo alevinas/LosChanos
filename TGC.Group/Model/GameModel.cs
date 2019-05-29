@@ -56,7 +56,7 @@ namespace TGC.Group.Model
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
 
             Fisica = new FisicaMundo();
-            Fisica.cargarEdificios(Plaza.Meshes);
+            Fisica.CargarEdificios(Plaza.Meshes);
             Fisica.Init(MediaDir);
 
             Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(0, 0, 0), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
@@ -86,11 +86,11 @@ namespace TGC.Group.Model
             }
 
             //Movimiento del Automotor.
-            if (input.keyDown(Key.Left) || input.keyDown(Key.A))
+            if (input.keyDown(Key.A))
             {
                 Jugador1.GiraIzquierda();
             }
-            else if (input.keyDown(Key.Right) || input.keyDown(Key.D))
+            else if (input.keyDown(Key.D))
             {
                 Jugador1.GiraDerecha();
             }
@@ -104,7 +104,7 @@ namespace TGC.Group.Model
                 Jugador1.Acelera();
 
             }
-            else if (input.keyDown(Key.Down) || input.keyDown(Key.S))
+            else if (input.keyDown(Key.S))
             {
                 Jugador1.MarchaAtras();
             }

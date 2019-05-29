@@ -15,31 +15,32 @@ namespace TGC.Group.Model
 {
     public class FisicaMundo
     {
+        //Declaro Iniciales
         private DiscreteDynamicsWorld dynamicsWorld;
         private CollisionDispatcher dispatcher;
         private DefaultCollisionConfiguration collisionConfiguration;
         private SequentialImpulseConstraintSolver constraintSolver;
         private BroadphaseInterface overlappingPairCache;
 
+        //Escenario
         private List<TgcMesh> Edificios = new List<TgcMesh>();
         private RigidBody piso;
-        private TgcMesh auto { get; set; }
-        private RigidBody cuerpoAuto;
+        public void CargarEdificios(List<TgcMesh> meshes)
+        {
+            Edificios = meshes;
+        }
+
+        //private TgcMesh MayaAuto { get; set; }
+        private List<TgcMesh> Mayas { get; set; }
+        private RigidBody CuerpoRigidoAuto { get; set; }
+
+        //Direcciones
         private TGCVector3 adelante;
         private TGCVector3 izquierda_derecha;
 
-        public void cargarEdificios(List<TgcMesh> meshes)
-        {
-            this.Edificios = meshes;
-        }
-
-        public TgcMesh devolverAuto()
-        {
-            return auto;
-        }
-
         public virtual void Init(string MediaDir)
         {
+            //Implementación Iniciales
             collisionConfiguration = new DefaultCollisionConfiguration();
             dispatcher = new CollisionDispatcher(collisionConfiguration);
             GImpactCollisionAlgorithm.RegisterAlgorithm(dispatcher);
@@ -48,6 +49,7 @@ namespace TGC.Group.Model
             dynamicsWorld = new DiscreteDynamicsWorld(dispatcher, overlappingPairCache, constraintSolver, collisionConfiguration);
             dynamicsWorld.Gravity = new TGCVector3(0, -100f, 0).ToBulletVector3();
 
+            //Se hacen los cuerpos rígidos del escenario.
             foreach (var mesh in Edificios)
             {
                 var objetos = BulletRigidBodyFactory.Instance.CreateRigidBodyFromTgcMesh(mesh);
@@ -60,7 +62,7 @@ namespace TGC.Group.Model
             var movimientoPiso = new DefaultMotionState();
             var pisoConstruccion = new RigidBodyConstructionInfo(0, movimientoPiso, cuerpoPiso);
             piso = new RigidBody(pisoConstruccion);
-            piso.Friction = 0.00001f;
+            piso.Friction = 0.0001f;
             piso.RollingFriction = 1;
             piso.Restitution = 1f;
             piso.UserObject = "floorBody";
@@ -69,24 +71,36 @@ namespace TGC.Group.Model
             //Estructura del auto (Hacemos como una caja con textura)
             var loader = new TgcSceneLoader();
 
-            TgcTexture texture = TgcTexture.createTexture(D3DDevice.Instance.Device, MediaDir + @"Textures\box4.jpg");
-            TGCBox boxMesh1 = TGCBox.fromSize(new TGCVector3(20, 20, 20), texture);
-            boxMesh1.Position = new TGCVector3(0, 10, 0);
-            auto = boxMesh1.ToMesh("box");
-            boxMesh1.Dispose();
+            //TgcTexture texture = TgcTexture.createTexture(D3DDevice.Instance.Device, MediaDir + @"Textures\box4.jpg");
+            //TGCBox boxMesh1 = TGCBox.fromSize(new TGCVector3(20, 20, 20), texture);
+            //TGCBox boxMesh1 = TGCBox.fromSize(new TGCVector3(0, 0, 0), new TGCVector3(10, 1, 10));
+            //MayaAuto = boxMesh1.ToMesh("box");
+            //boxMesh1.Dispose();
 
-            var tamañoAuto = new TGCVector3(55, 80, 0);
-            cuerpoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 10, auto.Position, 0, 0, 0, 0.55f, true);
-            cuerpoAuto.Restitution = 0;
-            cuerpoAuto.Gravity = new TGCVector3(0, -100f, 0).ToBulletVector3();
-            dynamicsWorld.AddRigidBody(cuerpoAuto);
+            var tamañoAuto = new TGCVector3(500,1, 40);
+            CuerpoRigidoAuto = BulletRigidBodyFactory.Instance.CreateBox(tamañoAuto, 10, new TGCVector3(0,0,0) , 0, 0, 0, 0.55f, true);
+            CuerpoRigidoAuto.Restitution = 0.2f;
+            CuerpoRigidoAuto.Gravity = new TGCVector3(0, -100f, 0).ToBulletVector3();
+            dynamicsWorld.AddRigidBody(CuerpoRigidoAuto);
 
-            auto = loader.loadSceneFromFile(MediaDir + "Auto-TgcScene.xml").Meshes[0];
-            auto.Position = TGCVector3.Empty;
+            Mayas = loader.loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml").Meshes;
+
+            foreach (var maya in Mayas)
+            {
+               maya.Position = TGCVector3.Empty;
+            }
+            
 
             //Vectores de la direccion del auto post-choque
             adelante = new TGCVector3(0, 0, 1);
             izquierda_derecha = new TGCVector3(1, 0, 0);
+        }
+
+        private void ComportamientoFisico(BulletSharp.Math.Vector3 impulso)
+        {
+            CuerpoRigidoAuto.ActivationState = ActivationState.ActiveTag;
+            CuerpoRigidoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
+            CuerpoRigidoAuto.ApplyCentralImpulse(impulso);
         }
 
         public void Update(TgcD3dInput input)
@@ -96,28 +110,19 @@ namespace TGC.Group.Model
         
             if (input.keyDown(Key.UpArrow))
             {
-                //Activa el comportamiento de la simulacion fisica para la capsula
-                cuerpoAuto.ActivationState = ActivationState.ActiveTag;
-                cuerpoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
-                cuerpoAuto.ApplyCentralImpulse(-fuerza * adelante.ToBulletVector3());
+                ComportamientoFisico(-fuerza * adelante.ToBulletVector3());
             }
             else if(input.keyDown(Key.LeftArrow))
             {
-                cuerpoAuto.ActivationState = ActivationState.ActiveTag;
-                cuerpoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
-                cuerpoAuto.ApplyCentralImpulse(fuerza * izquierda_derecha.ToBulletVector3());
+                ComportamientoFisico(fuerza * izquierda_derecha.ToBulletVector3());
             }
             else if(input.keyDown(Key.RightArrow))
             {
-                cuerpoAuto.ActivationState = ActivationState.ActiveTag;
-                cuerpoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
-                cuerpoAuto.ApplyCentralImpulse(-fuerza * izquierda_derecha.ToBulletVector3());
+                ComportamientoFisico(-fuerza * izquierda_derecha.ToBulletVector3());
             }
             else if(input.keyDown(Key.DownArrow))
             {
-                cuerpoAuto.ActivationState = ActivationState.ActiveTag;
-                cuerpoAuto.AngularVelocity = TGCVector3.Empty.ToBulletVector3();
-                cuerpoAuto.ApplyCentralImpulse(fuerza * adelante.ToBulletVector3());
+                ComportamientoFisico(fuerza * adelante.ToBulletVector3());
             }
 
         }
@@ -128,9 +133,14 @@ namespace TGC.Group.Model
             foreach (var mesh in Edificios) mesh.Render();
 
             //Se hace el transform a la posicion que devuelve el el Rigid Body del Hummer
-            auto.Position = new TGCVector3(cuerpoAuto.CenterOfMassPosition.X, cuerpoAuto.CenterOfMassPosition.Y + 0, cuerpoAuto.CenterOfMassPosition.Z);
-            auto.Transform = TGCMatrix.Translation(cuerpoAuto.CenterOfMassPosition.X, cuerpoAuto.CenterOfMassPosition.Y, cuerpoAuto.CenterOfMassPosition.Z);
-            auto.Render();
+
+            foreach (var maya in Mayas)
+            {
+                maya.Position = new TGCVector3(CuerpoRigidoAuto.CenterOfMassPosition.X, CuerpoRigidoAuto.CenterOfMassPosition.Y , CuerpoRigidoAuto.CenterOfMassPosition.Z);
+                maya.Transform = TGCMatrix.Translation(CuerpoRigidoAuto.CenterOfMassPosition.X, CuerpoRigidoAuto.CenterOfMassPosition.Y, CuerpoRigidoAuto.CenterOfMassPosition.Z);
+                maya.Render();
+            }
+            
         }
 
         public void Dispose()
@@ -144,8 +154,10 @@ namespace TGC.Group.Model
             piso.Dispose();
 
             //Dispose de Meshes
-            foreach (TgcMesh mesh in Edificios) mesh.Dispose();
-
+            foreach (var maya in Edificios)
+            {
+                maya.Dispose();
+            }
         }
     }
 }
