@@ -58,7 +58,7 @@ namespace TGC.Group.Model
 
             Fisica = new FisicaMundo();
             Fisica.CargarEdificios(Plaza.Meshes);
-            Fisica.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow);
+            Fisica.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow, Key.LeftControl, Key.Tab);
             Fisica.Init(Auto,Rueda);
 
             Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(0, 0, 0), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
