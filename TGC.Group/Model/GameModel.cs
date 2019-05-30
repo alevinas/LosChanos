@@ -39,7 +39,7 @@ namespace TGC.Group.Model
         private TgcScene Plaza { get; set; }
         private TgcScene Auto1 { get; set; }
         private TgcMesh Rueda { get; set; }
-        private TgcMesh Auto { get; set; }
+        private List<TgcMesh> Auto { get; set; }
 
         private AutoManejable Jugador1 { get; set; }
         private FisicaMundo Fisica;
@@ -52,12 +52,14 @@ namespace TGC.Group.Model
             //Objetos
 
             Plaza = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Plaza-TgcScene.xml");
+            Auto = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml").Meshes;
             Auto1 = new TgcSceneLoader().loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml");
             Rueda = new TgcSceneLoader().loadSceneFromFile(MediaDir + "Rueda-TgcScene.xml").Meshes[0];
 
             Fisica = new FisicaMundo();
             Fisica.CargarEdificios(Plaza.Meshes);
-            Fisica.Init(MediaDir);
+            Fisica.ConfigurarTeclas(Key.UpArrow, Key.DownArrow, Key.RightArrow, Key.LeftArrow);
+            Fisica.Init(Auto,Rueda);
 
             Jugador1 = new AutoManejable(Auto1, Rueda, new TGCVector3(0, 0, 0), FastMath.ToRad(270), new TGCVector3(-26, 10.5f, -45f), new TGCVector3(26, 10.5f, -45f), new TGCVector3(-26, 10.5f, 44), new TGCVector3(26, 10.5f, 44));
         }

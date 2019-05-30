@@ -38,8 +38,43 @@ namespace TGC.Group.Model
         private TGCVector3 adelante;
         private TGCVector3 izquierda_derecha;
 
-        public virtual void Init(string MediaDir)
+        //Teclas
+        private Key Acelerar { get; set; }
+        private Key Atras { get; set; }
+        private Key Derecha { get; set; }
+        private Key Izquierda { get; set; }
+
+        //Variables de Mayas de Ruedas
+        public List<TgcMesh> Ruedas { get; set; }
+        public TgcMesh RuedaDelIzq { get; set; }
+        public TgcMesh RuedaDelDer { get; set; }
+        public TgcMesh RuedaTrasIzq { get; set; }
+        public TgcMesh RuedaTrasDer { get; set; }
+
+        public TGCVector3 PosicionRuedaDelDer = new TGCVector3(-26, 10.5f, -45f);
+        public TGCVector3 PosicionRuedaDelIzq = new TGCVector3(26, 10.5f, -45f);
+        public TGCVector3 PosicionRuedaTrasDer = new TGCVector3(-26, 10.5f, 44);
+        public TGCVector3 PosicionRuedaTrasIzq = new TGCVector3(26, 10.5f, 44);
+
+        public virtual void Init(List<TgcMesh> valor,TgcMesh rueda)
         {
+            Mayas = valor;
+
+            //Creamos las instancias de cada rueda
+            RuedaTrasIzq = rueda.createMeshInstance("Rueda Trasera Izquierda");
+            RuedaDelIzq = rueda.createMeshInstance("Rueda Delantera Izquierda");
+            RuedaTrasDer = rueda.createMeshInstance("Rueda Trasera Derecha");
+            RuedaDelDer = rueda.createMeshInstance("Rueda Delantera Derecha");
+
+            //Armo una lista con las ruedas
+            Ruedas = new List<TgcMesh>
+            {
+                RuedaTrasIzq,
+                RuedaDelIzq,
+                RuedaTrasDer,
+                RuedaDelDer
+            };
+
             //Implementación Iniciales
             collisionConfiguration = new DefaultCollisionConfiguration();
             dispatcher = new CollisionDispatcher(collisionConfiguration);
@@ -69,7 +104,7 @@ namespace TGC.Group.Model
             dynamicsWorld.AddRigidBody(piso);
 
             //Estructura del auto (Hacemos como una caja con textura)
-            var loader = new TgcSceneLoader();
+            //var loader = new TgcSceneLoader();
 
             //TgcTexture texture = TgcTexture.createTexture(D3DDevice.Instance.Device, MediaDir + @"Textures\box4.jpg");
             //TGCBox boxMesh1 = TGCBox.fromSize(new TGCVector3(20, 20, 20), texture);
@@ -83,7 +118,6 @@ namespace TGC.Group.Model
             CuerpoRigidoAuto.Gravity = new TGCVector3(0, -100f, 0).ToBulletVector3();
             dynamicsWorld.AddRigidBody(CuerpoRigidoAuto);
 
-            Mayas = loader.loadSceneFromFile(MediaDir + "AutoPolicia-TgcScene.xml").Meshes;
 
             foreach (var maya in Mayas)
             {
@@ -103,36 +137,55 @@ namespace TGC.Group.Model
             CuerpoRigidoAuto.ApplyCentralImpulse(impulso);
         }
 
+        public void ConfigurarTeclas(Key acelerar, Key atras, Key derecha, Key izquierda)
+        {
+            Acelerar = acelerar;
+            Atras = atras;
+            Derecha = derecha;
+            Izquierda = izquierda;
+        }
+
         public void Update(TgcD3dInput input)
         {
             var fuerza = 30.30f;
             dynamicsWorld.StepSimulation(1 / 60f, 100);
         
-            if (input.keyDown(Key.UpArrow))
+            if (input.keyDown(Acelerar))
             {
                 ComportamientoFisico(-fuerza * adelante.ToBulletVector3());
             }
-            else if(input.keyDown(Key.LeftArrow))
+            else if(input.keyDown(Izquierda))
             {
                 ComportamientoFisico(fuerza * izquierda_derecha.ToBulletVector3());
             }
-            else if(input.keyDown(Key.RightArrow))
+            else if(input.keyDown(Derecha))
             {
                 ComportamientoFisico(-fuerza * izquierda_derecha.ToBulletVector3());
             }
-            else if(input.keyDown(Key.DownArrow))
+            else if(input.keyDown(Atras))
             {
                 ComportamientoFisico(fuerza * adelante.ToBulletVector3());
             }
 
         }
 
+
+        //Matriz que rota las rueda izquierda, para que quede como una rueda derecha
+        public TGCMatrix FlipRuedaDerecha { get => TGCMatrix.RotationZ(FastMath.ToRad(180)); }
+
+        //Matrices que colocan a las ruedas en su lugar
+        public TGCMatrix TraslacionRuedaTrasDer { get => TGCMatrix.Translation(PosicionRuedaTrasDer); }
+        public TGCMatrix TraslacionRuedaDelDer { get => TGCMatrix.Translation(PosicionRuedaDelDer); }
+        public TGCMatrix TraslacionRuedaTrasIzq { get => TGCMatrix.Translation(PosicionRuedaTrasIzq); }
+        public TGCMatrix TraslacionRuedaDelIzq { get => TGCMatrix.Translation(PosicionRuedaDelIzq); }
+
+
         public void Render(float tiempo)
         {
             //Hacemos render de la escena.
             foreach (var mesh in Edificios) mesh.Render();
 
-            //Se hace el transform a la posicion que devuelve el el Rigid Body del Hummer
+
 
             foreach (var maya in Mayas)
             {
@@ -140,7 +193,14 @@ namespace TGC.Group.Model
                 maya.Transform = TGCMatrix.Translation(CuerpoRigidoAuto.CenterOfMassPosition.X, CuerpoRigidoAuto.CenterOfMassPosition.Y, CuerpoRigidoAuto.CenterOfMassPosition.Z);
                 maya.Render();
             }
-            
+            RuedaTrasIzq.Transform = TraslacionRuedaTrasIzq * TGCMatrix.Translation(CuerpoRigidoAuto.CenterOfMassPosition.X, CuerpoRigidoAuto.CenterOfMassPosition.Y, CuerpoRigidoAuto.CenterOfMassPosition.Z);
+            RuedaTrasDer.Transform = FlipRuedaDerecha * TraslacionRuedaTrasDer * TGCMatrix.Translation(CuerpoRigidoAuto.CenterOfMassPosition.X, CuerpoRigidoAuto.CenterOfMassPosition.Y, CuerpoRigidoAuto.CenterOfMassPosition.Z);
+            RuedaDelIzq.Transform = TraslacionRuedaDelIzq * TGCMatrix.Translation(CuerpoRigidoAuto.CenterOfMassPosition.X, CuerpoRigidoAuto.CenterOfMassPosition.Y, CuerpoRigidoAuto.CenterOfMassPosition.Z);
+            RuedaDelDer.Transform = FlipRuedaDerecha* TraslacionRuedaDelDer * TGCMatrix.Translation(CuerpoRigidoAuto.CenterOfMassPosition.X, CuerpoRigidoAuto.CenterOfMassPosition.Y, CuerpoRigidoAuto.CenterOfMassPosition.Z);
+            foreach (var maya in Ruedas)
+            {
+                maya.Render();
+            }
         }
 
         public void Dispose()
