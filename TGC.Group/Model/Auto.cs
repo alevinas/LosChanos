@@ -201,7 +201,7 @@ namespace TGC.Group.Model
             {
                 maya.AutoTransformEnable = false;
                 maya.Transform = Movimiento;
-                maya.Render();
+                //maya.Render();
             }
 
             //Matrices que acumulan los cambios

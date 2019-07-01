@@ -14,8 +14,9 @@ using TGC.Core.Textures;
 using TGC.Core.Geometry;
 using Microsoft.DirectX.Direct3D;
 using TGC.Core.Collision;
+using TGC.Core.Shaders;
 using TGC.Core.BoundingVolumes;
-
+using Shader = Microsoft.DirectX.Direct3D.Effect;
 
 namespace TGC.Group.Model
 {
@@ -83,11 +84,14 @@ namespace TGC.Group.Model
         private List<AutoManejable> Players { get; set; }
         private List<AutoIA> Policias { get; set; }
 
-        public Microsoft.DirectX.Direct3D.Effect Invisibilidad { get; set; }
+        public Shader Invisibilidad { get; set; }
+        public Shader EnvMap { get; set; }
         public float Tiempo { get; set; }
         private Surface g_pDepthStencil;
         private Texture g_pRenderTarget;
         private VertexBuffer g_pVBV3D;
+
+        private TGCVector3 posicionLuz;
 
         public bool juegoDoble = false;
         public bool pantallaDoble = false;
@@ -107,13 +111,7 @@ namespace TGC.Group.Model
             PathHumo = MediaDir + "Textures\\TexturaHumo.png";
 
             //Shader Invisibilidad
-            Invisibilidad = Microsoft.DirectX.Direct3D.Effect.FromFile(d3dDevice, ShadersDir + "\\Invisibilidad.fx", null, null, ShaderFlags.PreferFlowControl,
-                null, out string compilationErrors);
-            if (Invisibilidad == null)
-            {
-                throw new System.Exception("Error al cargar shader. Errores: " + compilationErrors);
-            }
-
+            Invisibilidad = TGCShaders.Instance.LoadEffect(ShadersDir + "\\Invisibilidad.fx");
             Invisibilidad.Technique = "DefaultTechnique";
 
             g_pDepthStencil = d3dDevice.CreateDepthStencilSurface(d3dDevice.PresentationParameters.BackBufferWidth,
@@ -143,7 +141,13 @@ namespace TGC.Group.Model
                 CustomVertex.PositionTextured.Format, Pool.Default);
             g_pVBV3D.SetData(vertices, 0, LockFlags.None);
 
+            // --------------------------------------------------------------------
+            //Shader EnvMap
+            EnvMap = TGCShaders.Instance.LoadEffect(ShadersDir + "\\EnvMap.fx");
+            EnvMap.Technique = "RenderScene";
+            posicionLuz = new TGCVector3(0, 600, 0);
 
+            // --------------------------------------------------------------------
 
             //Cielo
             Cielo = new TgcSkyBox
@@ -571,6 +575,109 @@ namespace TGC.Group.Model
                         {
                             SwitchInicio = 4;
                         }
+
+                        // EnvMap
+                        //D3DDevice.Instance.Device.EndScene();
+                        var g_pCubeMap = new CubeTexture(D3DDevice.Instance.Device, 256, 1, Usage.RenderTarget, Format.A16B16G16R16F, Pool.Default);
+                        var pOldRT2 = D3DDevice.Instance.Device.GetRenderTarget(0);
+                        // ojo: es fundamental que el fov sea de 90 grados.
+                        // asi que re-genero la matriz de proyeccion
+                        D3DDevice.Instance.Device.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(90.0f), 1f, 1f, 10000f).ToMatrix();
+
+                        // Genero las caras del enviroment map
+                        for (var nFace = CubeMapFace.PositiveX; nFace <= CubeMapFace.NegativeZ; ++nFace)
+                        {
+                            var pFace = g_pCubeMap.GetCubeMapSurface(nFace, 0);
+                            D3DDevice.Instance.Device.SetRenderTarget(0, pFace);
+                            TGCVector3 Dir, VUP;
+                            Color color;
+                            switch (nFace)
+                            {
+                                default:
+                                case CubeMapFace.PositiveX:
+                                    // Left
+                                    Dir = new TGCVector3(1, 0, 0);
+                                    VUP = TGCVector3.Up;
+                                    color = Color.Black;
+                                    break;
+
+                                case CubeMapFace.NegativeX:
+                                    // Right
+                                    Dir = new TGCVector3(-1, 0, 0);
+                                    VUP = TGCVector3.Up;
+                                    color = Color.Red;
+                                    break;
+
+                                case CubeMapFace.PositiveY:
+                                    // Up
+                                    Dir = TGCVector3.Up;
+                                    VUP = new TGCVector3(0, 0, -1);
+                                    color = Color.Gray;
+                                    break;
+
+                                case CubeMapFace.NegativeY:
+                                    // Down
+                                    Dir = TGCVector3.Down;
+                                    VUP = new TGCVector3(0, 0, 1);
+                                    color = Color.Yellow;
+                                    break;
+
+                                case CubeMapFace.PositiveZ:
+                                    // Front
+                                    Dir = new TGCVector3(0, 0, 1);
+                                    VUP = TGCVector3.Up;
+                                    color = Color.Green;
+                                    break;
+
+                                case CubeMapFace.NegativeZ:
+                                    // Back
+                                    Dir = new TGCVector3(0, 0, -1);
+                                    VUP = TGCVector3.Up;
+                                    color = Color.Blue;
+                                    break;
+                            }
+
+                            D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, color, 1.0f, 0);
+                            //D3DDevice.Instance.Device.BeginScene();
+
+                            //Renderizar
+                            
+                            foreach(var mesh in AutoFisico1.Mayas)
+                            {
+                                mesh.Effect = EnvMap;
+                                mesh.Technique = "RenderScene";
+                                mesh.Render();
+                            }
+
+                            //D3DDevice.Instance.Device.EndScene();
+                        }
+                        // restuaro el render target
+                        D3DDevice.Instance.Device.SetRenderTarget(0, pOldRT);
+                        //TextureLoader.Save("test.bmp", ImageFileFormat.Bmp, g_pCubeMap);
+
+                        // Restauro el estado de las transformaciones
+                       
+                        D3DDevice.Instance.Device.Transform.View = Camara.GetViewMatrix().ToMatrix();
+                        D3DDevice.Instance.Device.Transform.Projection = TGCMatrix.PerspectiveFovLH(Geometry.DegreeToRadian(45.0f), D3DDevice.Instance.AspectRatio, 1f, 10000f).ToMatrix();
+
+                        // dibujo pp dicho
+                        //D3DDevice.Instance.Device.BeginScene();
+                        D3DDevice.Instance.Device.Clear(ClearFlags.Target | ClearFlags.ZBuffer, Color.Black, 1.0f, 0);
+                        EnvMap.SetValue("g_txCubeMap", g_pCubeMap);
+
+                        //renderScene(ElapsedTime, false);
+                        foreach (var mesh in AutoFisico1.Mayas)
+                        {
+                            mesh.Effect = EnvMap;
+                            mesh.Technique = "RenderScene";
+                            mesh.Render();
+                        }
+
+                        g_pCubeMap.Dispose();
+
+                        //D3DDevice.Instance.Device.EndScene();
+                        //D3DDevice.Instance.Device.Present();
+
 
                         break;
                     }
